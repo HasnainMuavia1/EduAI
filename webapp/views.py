@@ -323,13 +323,14 @@ MAX_CHAT_HISTORY_LENGTH = 10
 import re
 
 
+
 def format_response(response):
     """
     Format the assistant's response to match the MCQ layout with proper styling.
-    Handles MCQs, regular questions, and explanations with consistent formatting.
+    Handles MCQs, regular questions, explanations, and HTML headings with consistent formatting.
     """
     # Clean the response and split into lines
-    response = response.strip()
+    response = response.strip().replace('*', '')
     lines = response.split('\n')
     formatted_lines = []
 
@@ -342,9 +343,17 @@ def format_response(response):
         if not line:
             continue
 
-        # Handle title/header without showing asterisks
-        if line.startswith('**') and line.endswith('**'):
-            formatted_lines.append(f'<h2 class="text-center mb-2">{line[2:-2]}</h2>')
+        # Handle h1 headings
+        if line.startswith('<h1>') and line.endswith('</h1>'):
+            formatted_lines.append(f'<h1 class="text-center mb-4 text-2xl font-bold">{line[4:-5]}</h1>')
+
+        # Handle h2 headings
+        elif line.startswith('<h2>') and line.endswith('</h2>'):
+            formatted_lines.append(f'<h2 class="text-center mb-3 text-xl font-semibold">{line[4:-5]}</h2>')
+
+        # Handle h3 headings
+        elif line.startswith('<h3>') and line.endswith('</h3>'):
+            formatted_lines.append(f'<h3 class="text-center mb-2 text-lg font-medium">{line[4:-5]}</h3>')
 
         # Handle numbered questions (e.g., "1. What is...")
         elif re.match(r'^\d+\.', line):
@@ -376,6 +385,7 @@ def format_response(response):
     # Join all lines into a single formatted response with minimal line breaks
     formatted_response = ''.join(formatted_lines)
     return formatted_response
+
 def chat(request):
     # Clear chat history on GET requests (page reload)
     if request.method == "GET":
