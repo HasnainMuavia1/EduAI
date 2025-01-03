@@ -2,7 +2,6 @@ import io
 import subprocess
 import urllib.request
 from tempfile import NamedTemporaryFile
-
 from groq import Groq
 import yt_dlp
 from django.conf import settings
@@ -307,11 +306,20 @@ def chat_with_book(request):
 
 
 # Initialize the Groq client
-client = Groq(api_key="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")
-
-# Define the maximum number of messages to retain in chat history
-MAX_CHAT_HISTORY_LENGTH = 10
-
+from django.shortcuts import render, HttpResponse
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.utils.html import escape
+from groq import Groq
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import inch
+from docx import Document
+from docx.shared import Pt
+import json
+import io
+import base64
+import re
 
 # Initialize the Groq client
 client = Groq(api_key="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")
@@ -319,9 +327,7 @@ client = Groq(api_key="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"
 # Define the maximum number of messages to retain in chat history
 MAX_CHAT_HISTORY_LENGTH = 10
 
-
 import re
-
 
 
 def format_response(response):
@@ -386,6 +392,7 @@ def format_response(response):
     formatted_response = ''.join(formatted_lines)
     return formatted_response
 
+
 def chat(request):
     # Clear chat history on GET requests (page reload)
     if request.method == "GET":
@@ -421,11 +428,7 @@ def chat(request):
                               - Use numbered formatting.
                               - Follow this structure:
                               -DO not provide answers
-                                1. Question text
-                                   A) Option
-                                   B) Option
-                                   C) Option
-                                   D) Option
+
 
                            3. For answers with explanations:
                               - Number each answer.
@@ -450,7 +453,7 @@ def chat(request):
                               - Add answer spaces formatted like:
                                Topic 1 | topic 2
                                        |
-                                 
+
 
                            Always follow consistent formatting and spacing to make responses easy to read."""
         }
@@ -485,6 +488,16 @@ def chat(request):
             }, status=500)
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+def generate_mock_response(user_input):
+    """
+    Mock function to generate a conversational response.
+    Replace this with the actual API call for generating responses.
+    """
+    return f"That's an interesting point! Let's discuss: {user_input}"
+
+
 def paper(request):
     if request.method == 'POST':
         try:
@@ -587,6 +600,7 @@ def paper(request):
             return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Only POST method is allowed"}, status=405)
+
 
 import requests
 
