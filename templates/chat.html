@@ -1,0 +1,893 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Question Paper Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+
+
+<style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --background-color: #f8fafc;
+            --chat-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--background-color);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        /* Full-screen container styles */
+        .initial-container {
+
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            margin-right: 10%;
+            margin-left: 10%;
+        }
+
+        .split-container {
+            display: none;
+            height: 100vh;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .chat-section {
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        /* Message styles */
+        .message-wrapper {
+            display: flex;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .user-wrapper {
+            justify-content: flex-end;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .user-message {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .bot-message {
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+       .split-container {
+            display: none;
+            height: 100vh;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        /* Modified chat section to take 70% width */
+        .chat-section-main {
+            flex: 0 0 70%;
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+
+        /* Modified preview section to take 30% width */
+        .preview-section {
+            flex: 0 0 30%;
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+            border-radius: 12px;
+            box-shadow: var(--paper-shadow);
+            overflow: hidden;
+            justify-content: center;
+            max-width: fit-content; /* Set width to fit content */
+
+        }
+
+        /* Enhanced PDF Preview styles */
+        .pdf-preview {
+            background: white;
+            min-height: 100%;
+            padding: 40px;
+            font-size: 12pt;
+            line-height: 1.6;
+            font-family: 'Times New Roman', Times, serif;
+            box-shadow: var(--paper-shadow);
+            border-radius: 0;
+            position: relative;
+            margin: 0;
+            outline: none;
+            width: 100%;
+            max-width: fit-content; /* Set width to fit content */
+
+        }
+
+        .pdf-preview:focus {
+            outline: none;
+        }
+
+        .pdf-preview .mcq-container {
+            margin-bottom: 2rem;
+        }
+
+        .pdf-preview .mcq-question {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .pdf-preview .mcq-option {
+            margin-bottom: 0.75rem;
+            padding-left: 2rem;
+        }
+
+        .preview-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 1rem;
+            padding: 1.5rem;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            page-break-after: always;
+        }
+
+        .preview-box + .preview-box {
+            margin-top: 2rem;
+        }
+
+        .pdf-preview {
+            background: white;
+            padding: 20px;
+            font-size: 12pt;
+            line-height: 1.6;
+            font-family: 'Times New Roman', Times, serif;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        @media print {
+            .preview-box {
+                break-inside: avoid;
+                page-break-after: always;
+            }
+        }
+
+        /* Make the preview content editable */
+        .pdf-preview[contenteditable="true"] {
+            cursor: text;
+        }
+
+        /* Previous styles remain the same after this point */
+
+        @media (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+            }
+            .chat-section-main,
+            .preview-section {
+                flex: 1 1 100%;
+            }
+        }
+
+        /* Input container styles */
+        .input-container {
+            padding: 10px;
+            background: var(--chat-bg);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            background: var(--background-color);
+            border-radius: 999px;
+            padding: 0.25rem;
+        }
+
+        .form-control {
+            border: none;
+            background: transparent;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color) !important;
+            border-radius: 999px !important;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color) !important;
+        }
+
+        /* File upload styles */
+        .file-upload-icon {
+            padding: 0.5rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .file-upload-icon:hover {
+            opacity: 1;
+        }
+
+        /* Download dropdown styles */
+        .download-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+/* Ensure the dropdown menu is hidden by default */
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    border-color: #1da1f2;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
+    padding: 5px;
+    flex-direction: column; /* Arrange items in a row */
+    border: none;
+}
+
+/* Show the dropdown menu when it has the class 'show' */
+.dropdown-menu.show {
+    display: flex; /* Show in a flex row when visible */
+}
+
+.dropdown-item {
+    padding: 5px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+
+/* Media query for responsiveness */
+@media (max-width: 768px) {
+    .dropdown-menu {
+        bottom: 20px;
+        right: 5px;
+        flex-wrap: nowrap; /* Prevent wrapping */
+        flex-direction: column;
+    }
+
+    .dropdown-item {
+        padding: 5px; /* Adjust padding for compactness on smaller screens */
+    }
+}
+
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--background-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+         .initial-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            margin-right: 5%;
+            margin-left: 5%;
+            padding-bottom: 4rem; /* Added padding at the bottom */
+        }
+
+        .upload-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            height: 600px; /* Reduced fixed height */
+            margin-bottom: 2rem; /* Added margin at the bottom */
+        }
+
+        .upload-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 2rem; /* Slightly reduced margin */
+        }
+
+        .url-input-container {
+            margin-bottom: 2rem; /* Slightly reduced margin */
+            position: relative;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .url-input-group {
+            display: flex;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .url-input {
+            flex: 1;
+            padding: 1rem 6rem 1rem 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 1rem;
+            width: 100%;
+            background: #f8fafc;
+        }
+
+        .send-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #2563eb;
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 2rem 0; /* Slightly reduced margin */
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .upload-box {
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            padding: 2rem; /* Reduced padding */
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+            min-height: 200px; /* Reduced height */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-box.has-file {
+            padding: 1.5rem;
+            min-height: 100px; /* Even smaller when file is selected */
+        }
+
+        .upload-box:hover {
+            border-color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem; /* Slightly reduced size */
+            color: #2563eb;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .file-info {
+            color: #475569;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+
+        #selected-file {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            margin-top: 1rem;
+            display: none;
+            position: relative;
+            width: 100%;
+            text-align: left;
+        }
+
+        .file-close {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #64748b;
+            font-size: 1.2rem;
+        }
+
+        .file-close:hover {
+            color: #ef4444;
+        }
+
+
+        @media (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+            }
+        }
+    </style></head>
+<body>
+<div class="initial-container" id="single-container">
+        <div class="upload-container">
+            <h1 class="upload-title">Ask your Question</h1>
+
+            <form id="chat-form" method="post">
+                {% csrf_token %}
+                <div class="url-input-container">
+                    <div class="url-input-group">
+                        <input type="text" id="query" name="query" class="url-input" placeholder="Ask your question">
+                        <button type="submit" class="send-btn">Send</button>
+                    </div>
+                </div>
+
+                <div class="divider">or</div>
+
+                <div class="upload-box" id="upload-box" onclick="document.getElementById('file-upload').click()">
+                    <div class="default-upload-content">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <div class="upload-text">Drag & drop your file here or click to browse</div>
+                        <div class="file-info">
+                            <i class="fas fa-info-circle"></i>
+                            Accepted formats: PDF, DOC, TXT
+                        </div>
+                    </div>
+                    <div id="selected-file"></div>
+                </div>
+                <input type="file" id="file-upload" name="document" style="display: none;" accept=".pdf,.doc,.docx,.txt">
+            </form>
+        </div>
+
+    </div>
+<div class="split-container" id="split-container">
+    <div class="chat-section-main">
+        <div class="chat-header">
+            Generate Question Paper
+        </div>
+        <div class="chat-container" id="simple-chat-box"></div>
+        <div class="input-container">
+            <form id="chat-form-split" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" id="query-split" name="query" class="form-control" placeholder="Modify your requirements..." required>
+                    <label for="file-upload-split" class="file-upload-icon">
+                        <i class="fas fa-paperclip"></i>
+                    </label>
+                    <input type="file" id="file-upload-split" name="document" style="display: none;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="preview-section">
+        <div class="chat-header">
+            Question Paper Preview
+        </div>
+        <div class="chat-container" id="formatted-chat-box"></div>
+        <span class="download-icon" onclick="downloadPDF()">
+            <i class="fas fa-download"></i>
+        </span>
+    </div>
+</div>
+<script>
+    // Utility functions for response formatting
+function formatResponse(response) {
+    response = response.trim();
+    const lines = response.split('\n');
+    const formatted_lines = [];
+
+    let in_mcq = false;
+
+    for (const line of lines) {
+        const trimmedLine = line.trim();
+
+        if (!trimmedLine) continue;
+
+        if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+            formatted_lines.push(`<h2 class="text-center mb-2">${trimmedLine.slice(2, -2)}</h2>`);
+        } else if (/^\d+\./.test(trimmedLine)) {
+            if (in_mcq) {
+                formatted_lines.push('</div>');
+            }
+            formatted_lines.push('<div class="question-block mb-3">');
+            formatted_lines.push(`<div class="question-text font-weight-bold">${trimmedLine}</div>`);
+            in_mcq = true;
+        } else if (in_mcq && /^[A-D]\)/.test(trimmedLine)) {
+            formatted_lines.push(`<div class="option ml-3">${trimmedLine}</div>`);
+        } else if (trimmedLine.includes('_'.repeat(5))) {
+            formatted_lines.push('<div class="answer-space border-bottom my-2"></div>');
+        } else {
+            if (in_mcq) {
+                formatted_lines.push('</div>');
+                in_mcq = false;
+            }
+            formatted_lines.push(`<div class="content-text">${trimmedLine}</div>`);
+        }
+    }
+
+    if (in_mcq) {
+        formatted_lines.push('</div>');
+    }
+
+    return formatted_lines.join('');
+}
+
+function handleFileContent(content) {
+    const formattedContent = content.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;');
+    return formattedContent;
+}
+
+// File handling functions
+async function displayFileContent(file, previewContainer) {
+    if (!file || !previewContainer) return;
+
+    const fileType = file.name.split('.').pop().toLowerCase();
+
+    try {
+        let content = '';
+        if (fileType === 'txt') {
+            content = await readTextFile(file);
+        } else if (fileType === 'pdf') {
+            content = await readPdfFileAsync(file);
+        } else if (fileType === 'docx' || fileType === 'doc') {
+            content = await readDocxFileAsync(file);
+        }
+
+        // Store the original file content in a data attribute
+        previewContainer.setAttribute('data-original-content', content);
+        updatePreviewContent(previewContainer, '');
+    } catch (error) {
+        console.error("Error reading file:", error);
+        previewContainer.innerHTML = handleFileContent("Error reading file");
+    }
+}
+
+function readTextFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(e);
+        reader.readAsText(file);
+    });
+}
+
+async function readPdfFileAsync(file) {
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let textContent = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            textContent += content.items.map(item => item.str).join(' ') + '\n';
+        }
+
+        return textContent;
+    } catch (error) {
+        throw new Error('Error reading PDF: ' + error.message);
+    }
+}
+
+async function readDocxFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const result = await mammoth.extractRawText({ arrayBuffer: e.target.result });
+                resolve(result.value);
+            } catch (error) {
+                reject(error);
+            }
+        };
+        reader.onerror = (e) => reject(e);
+        reader.readAsArrayBuffer(file);
+    });
+}
+
+function updatePreviewContent(previewContainer, botResponse) {
+    // Get the original file content from the data attribute
+    const originalContent = previewContainer.getAttribute('data-original-content');
+
+    // Create a wrapper for the file content if it exists
+    const fileContentHtml = originalContent ?
+        `<div class="file-content-section">${handleFileContent(originalContent)}</div>` : '';
+
+    // Create a wrapper for the bot response if it exists
+    const botResponseHtml = botResponse ?
+        `<div class="bot-response-section">${formatResponse(botResponse)}</div>` : '';
+
+    // Combine both sections
+    previewContainer.innerHTML = `
+        <div class="preview-box">
+            <div class="pdf-preview" contenteditable="true">
+                ${fileContentHtml}
+                ${botResponseHtml}
+            </div>
+        </div>
+    `;
+}
+
+// Form submission handler
+function handleFormSubmit(event, formId) {
+    event.preventDefault();
+    const isInitialForm = formId === 'chat-form';
+    const previewContainer = document.getElementById('formatted-chat-box');
+    const simpleChatBox = document.getElementById("simple-chat-box");
+
+    if (isInitialForm) {
+        document.getElementById("single-container").style.display = "none";
+        document.getElementById("split-container").style.display = "flex";
+    }
+
+    const query = document.getElementById(isInitialForm ? "query" : "query-split").value;
+
+    // Add user query to chat box
+    const userWrapper = document.createElement("div");
+    userWrapper.className = "message-wrapper user-wrapper";
+    userWrapper.innerHTML = `<div class="chat-bubble user-message">${query}</div>`;
+    simpleChatBox.appendChild(userWrapper);
+
+    fetch("{% url 'chat' %}", {
+        method: "POST",
+        body: new FormData(event.target),
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+    })
+    .then(data => {
+        const botResponse = data.response;
+
+        // Update preview content with both file content and bot response
+        updatePreviewContent(previewContainer, botResponse);
+
+        // Add bot response to simple chat box
+        const simpleBotWrapper = document.createElement("div");
+        simpleBotWrapper.className = "message-wrapper bot-wrapper";
+        simpleBotWrapper.innerHTML = `<div class="chat-bubble bot-message">${botResponse}</div>`;
+        simpleChatBox.appendChild(simpleBotWrapper);
+
+        document.getElementById(isInitialForm ? "query" : "query-split").value = '';
+        simpleChatBox.scrollTop = simpleChatBox.scrollHeight;
+        previewContainer.scrollTop = previewContainer.scrollHeight;
+    })
+    .catch(error => {
+        console.error("Error during fetch or processing:", error);
+    });
+}
+
+// File upload handling functions
+function handleFileUpload(file, previewContainer, isInitialContainer) {
+    if (!file) return;
+
+    const uploadBox = isInitialContainer ?
+        document.getElementById('upload-box') :
+        document.querySelector('.input-group');
+
+    const selectedFileDiv = isInitialContainer ?
+        document.getElementById('selected-file') :
+        document.createElement('div');
+
+    if (isInitialContainer) {
+        const defaultContent = uploadBox.querySelector('.default-upload-content');
+        uploadBox.classList.add('has-file');
+        selectedFileDiv.style.display = 'block';
+        selectedFileDiv.innerHTML = `
+            <span>${file.name}</span>
+            <i class="fas fa-times file-close" onclick="removeFile(event)"></i>`;
+        defaultContent.style.display = 'none';
+    } else {
+        selectedFileDiv.id = 'selected-file-split';
+        selectedFileDiv.className = 'selected-file-info';
+        selectedFileDiv.innerHTML = `
+            <span>${file.name}</span>
+            <i class="fas fa-times file-close" onclick="removeSplitFile(event)"></i>`;
+
+        const existingFileInfo = uploadBox.querySelector('.selected-file-info');
+        if (existingFileInfo) {
+            existingFileInfo.remove();
+        }
+        uploadBox.insertBefore(selectedFileDiv, uploadBox.firstChild);
+    }
+
+    displayFileContent(file, previewContainer);
+}
+
+function removeFile(event) {
+    event.stopPropagation();
+    document.getElementById('file-upload').value = '';
+    resetUploadBox();
+    document.getElementById('formatted-chat-box').innerHTML = '';
+}
+
+function removeSplitFile(event) {
+    event.stopPropagation();
+    document.getElementById('file-upload-split').value = '';
+    let fileDiv = document.getElementById('selected-file-split');
+    if (fileDiv) fileDiv.remove();
+    document.getElementById('formatted-chat-box').removeAttribute('data-original-content');
+    updatePreviewContent(document.getElementById('formatted-chat-box'), '');
+}
+
+function resetUploadBox() {
+    const uploadBox = document.getElementById('upload-box');
+    const selectedFileDiv = document.getElementById('selected-file');
+    const defaultContent = uploadBox.querySelector('.default-upload-content');
+
+    uploadBox.classList.remove('has-file');
+    selectedFileDiv.style.display = 'none';
+    selectedFileDiv.innerHTML = '';
+    defaultContent.style.display = 'block';
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission listeners
+    document.getElementById("chat-form").onsubmit = (e) => handleFormSubmit(e, 'chat-form');
+    document.getElementById("chat-form-split").onsubmit = (e) => handleFormSubmit(e, 'chat-form-split');
+
+    // File upload listeners
+    document.getElementById('file-upload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const previewContainer = document.getElementById('formatted-chat-box');
+        handleFileUpload(file, previewContainer, true);
+    });
+
+    document.getElementById('file-upload-split').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const previewContainer = document.getElementById('formatted-chat-box');
+        handleFileUpload(file, previewContainer, false);
+    });
+});
+
+// PDF generation and download function
+async function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    const content = document.querySelector('.pdf-preview').innerText;
+
+    // PDF formatting settings
+    const margin = 20;
+    const pageWidth = pdf.internal.pageSize.width - margin * 2;
+    const lineHeight = 7;
+    const paragraphSpacing = 3;
+    let y = margin;
+
+    // Set font and size
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+
+    // Process content by lines
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+        if (line.trim()) {
+            // Check if line is a question (starts with number and period)
+            if (/^\d+\./.test(line)) {
+                // Add extra space before questions
+                y += paragraphSpacing * 2;
+                pdf.setFont('helvetica', 'bold');
+            } else if (/^[A-D]\)/.test(line)) {
+                // Format options with proper indentation
+                pdf.setFont('helvetica', 'normal');
+            } else {
+                pdf.setFont('helvetica', 'normal');
+            }
+
+            // Wrap text to fit page width
+            const wrappedText = pdf.splitTextToSize(line, pageWidth);
+
+            // Add new page if content would overflow
+            wrappedText.forEach(text => {
+                if (y > pdf.internal.pageSize.height - margin) {
+                    pdf.addPage();
+                    y = margin;
+                }
+
+                // Add text with proper indentation for options
+                if (/^[A-D]\)/.test(text)) {
+                    pdf.text(text, margin + 10, y);
+                } else {
+                    pdf.text(text, margin, y);
+                }
+
+                y += lineHeight;
+            });
+
+            // Add space after each paragraph
+            y += paragraphSpacing;
+        }
+    }
+
+    pdf.save('question_paper.pdf');
+}
+</script>
+</body>
+</html>
+{% endblock %}
+

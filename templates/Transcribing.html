@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <style>
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+
+        .upload-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            margin: 1rem;
+        }
+
+        .upload-container {
+            border: 2px dashed #6c757d;
+            border-radius: 15px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-container:hover {
+            border-color: #F55036; /* Primary color */
+            background: #fbe3e1; /* Lightened background */
+            transform: translateY(-2px);
+        }
+
+        .upload-container i {
+            font-size: 2.5rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-container:hover i {
+            color: #F55036; /* Primary color */
+            transform: scale(1.1);
+        }
+
+        .custom-input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .custom-input-group input {
+            height: 3.5rem;
+            border-radius: 50px;
+            padding: 0 1.5rem;
+            font-size: 1rem;
+            border: 2px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input-group button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            border-radius: 50px;
+            padding: 0 1.5rem;
+            background: #F55036; /* Primary color */
+            border: none;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        /* Leftward animation on button hover */
+        .custom-input-group button:hover {
+            transform: translateX(-5px);
+            background-color: #f77c5c; /* Lightened shade for hover */
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #6c757d;
+            margin: 1rem 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .divider span {
+            padding: 0 1rem;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .upload-container.dragover {
+            animation: pulse 1s infinite;
+            border-color: #F55036; /* Primary color */
+            background: #fbe3e1; /* Lightened background during dragover */
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="upload-card">
+            <h4 class="text-center mb-4">Upload Your Media</h4>
+            <form action="{% url 'trans_results' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="custom-input-group">
+                    <input type="text" name="url" class="form-control" placeholder="Enter YouTube URL" required>
+                    <button type="submit">Transcribe</button>
+                </div>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <div class="upload-container" id="dropZone" onclick="document.getElementById('file-upload').click();">
+                    <div class="text-center">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop your file here or click to browse</p>
+                    </div>
+                </div>
+
+                <input type="file" id="file-upload" name="file" accept=".mp3, .mp4, .wav" class="d-none" onchange="handleFileSelect(this)">
+
+                <div class="file-types text-center">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Accepted formats: MP3, MP4, WAV
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Drag and drop functionality
+        const dropZone = document.getElementById('dropZone');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('dragover');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            const fileInput = document.getElementById('file-upload');
+            fileInput.files = files;
+            fileInput.form.submit();
+        }
+
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                input.form.submit();
+            }
+        }
+    </script>
+{% endblock %}

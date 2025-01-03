@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EduAI{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #ff5722;
+            --primary-dark: #f4511e;
+            --secondary-color: #64748b;
+            --accent-color: #ff9800;
+            --background-color: #fafafa;
+            --text-color: #333333;
+            --navbar-height: 60px;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--background-color);
+            padding-top: var(--navbar-height); /* Add padding for fixed navbar */
+        }
+
+        /* Modern Navbar Styles */
+        .custom-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            height: var(--navbar-height);
+            padding: 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.3s ease;
+        }
+        .navbar-brand i {
+        font-size: 2rem;  /* Added to make the brain icon bigger */
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-link {
+            color: var(--text-color) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            margin: 0 0.2rem;
+            
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, rgba(255, 87, 34, 0.1), rgba(255, 152, 0, 0.1));
+            color: var(--primary-color) !important;
+            transform: translateY(-1px);
+        }
+
+        .nav-icon {
+            margin-right: 0.4rem;
+            font-size: 1rem;
+        }
+
+        /* Main Content Styles */
+        main {
+            flex: 1;
+            width: 100%;
+            padding: 2rem 0;  /* Adjusted padding */
+            min-height: calc(100vh - var(--navbar-height) - 300px); /* Minimum height calculation */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Compact Footer Styles */
+        .footer {
+            background: #ffffff;
+            padding: 2rem 0 1rem;
+            box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            z-index: 2;
+            margin-top: auto; /* Push footer to bottom */
+        }
+
+        .footer-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.4rem;
+        }
+
+        .footer-links a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+            transform: translateX(3px);
+        }
+
+        .footer-links i {
+            margin-right: 0.4rem;
+            font-size: 0.8rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .social-link {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(255, 87, 34, 0.1), rgba(255, 152, 0, 0.1));
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(100, 116, 139, 0.1);
+        }
+
+        .footer-bottom p {
+            color: var(--secondary-color);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .heart-icon {
+            color: #ff5722;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .footer {
+                padding: 1.5rem 0 1rem;
+            }
+
+            .footer-section {
+                margin-bottom: 1rem;
+            }
+
+            main {
+                padding: 1rem 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg custom-navbar fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-brain me-2"></i>
+                <span style="font-size: 1.8rem">EduAI</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'trans_results' %}">
+                            <i class="fas fa-home nav-icon"></i>Lecture Mode
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'chat_with_book' %}">
+                            <i class="fas fa-cogs nav-icon"></i>BookChat
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">
+                            <i class="fas fa-info-circle nav-icon"></i>About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">
+                            <i class="fas fa-envelope nav-icon"></i>Contact
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 footer-section">
+                    <h3 class="footer-title">About EduAI</h3>
+                    <p class="text-secondary">Empowering education through artificial intelligence. We provide cutting-edge solutions for modern learning experiences.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" title="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 footer-section">
+                    <h3 class="footer-title">Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href=""><i class="fas fa-chevron-right"></i>Services</a></li>
+                        <li><a href=""><i class="fas fa-chevron-right"></i>Privacy</a></li>
+                        <li><a href=""><i class="fas fa-chevron-right"></i>Terms</a></li>
+                        <li><a href=""><i class="fas fa-chevron-right"></i>FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6 footer-section">
+                    <h3 class="footer-title">Contact</h3>
+                    <ul class="footer-links">
+                        <li><a href="mailto:contact@eduai.com"><i class="fas fa-envelope"></i>Hasnain.muavia2004@gmail.com</a></li>
+                        <li><a href="tel:+1234567890"><i class="fas fa-phone"></i>+92 345 3241015</a></li>
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i>Pakistan Lahore</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Made with <i class="fas fa-heart heart-icon"></i> by Hasnain Muavia</p>
+                <p class="mt-1">&copy; {% now "Y" %} EduAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

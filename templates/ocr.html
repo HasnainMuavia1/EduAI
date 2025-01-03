@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAI - OCR Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+          :root {
+            --primary-color: #1a365d;
+            --border-color: #e2e8f0;
+            --background-color: #edf2f7;
+            --header-bg: #2d3748;
+            --text-light: #f7fafc;
+        }
+
+        .initial-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            padding: 2rem;
+            background-color: var(--background-color);
+        }
+
+        .upload-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            height:100%
+        }
+
+        .upload-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .upload-box {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary-color);
+            background-color: var(--background-color);
+        }
+
+        .split-container {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            height: 90vh;
+            background-color: var(--background-color);
+        }
+
+        .chat-section-main, .preview-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 1rem;
+            background: var(--header-bg);
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .image-display {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-display img {
+            max-width: 100%;
+            max-height: calc(100% - 60px);
+            object-fit: contain;
+            margin: auto;
+        }
+
+        .text-display {
+            height: 100%;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .text-display pre {
+            white-space: pre-wrap;
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        .nav-arrow {
+            background: var(--header-bg);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            background: var(--primary-color);
+        }
+
+        .nav-arrow.hidden {
+            display: none;
+        }
+
+        .upload-more {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--header-bg);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: background-color 0.3s ease;
+            z-index: 10;
+            visibility: visible !important;
+        }
+
+        .nav-arrows {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex !important;
+            gap: 1rem;
+            visibility: visible !important;
+        }
+
+        .upload-more:hover {
+            background: var(--primary-color);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-icon {
+            padding: 0.5rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .file-upload-icon:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+ <div class="initial-container" id="initial-upload">
+        <div class="upload-container">
+            <h1 class="upload-title">Upload Your Media</h1>
+            <div class="upload-box" onclick="document.getElementById('initial-file-input').click()">
+                <i class="fas fa-cloud-upload-alt upload-icon" style="font-size: 40px;"></i>
+                <div class="upload-text">Drag & drop your file here or click to browse</div><br>
+                <div class="file-info">
+                    <i class="fas fa-info-circle"></i>
+                    Accepted formats: pdf, png, jpg
+                </div>
+            </div>
+            <input type="file" id="initial-file-input" multiple accept="image/*,.pdf" onchange="handleFileUpload(event)">
+        </div>
+    </div>
+
+    <div class="split-container" id="split-container">
+        <div class="chat-section-main">
+            <div class="chat-header">Image Preview</div>
+            <div class="image-display">
+                <img id="uploaded-image" src="" alt="Uploaded Image">
+                <div class="nav-arrows">
+                    <div class="nav-arrow" id="prev-arrow" onclick="navigateImages(-1)">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                    <div class="nav-arrow" id="next-arrow" onclick="navigateImages(1)">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+                <div class="upload-more" onclick="document.getElementById('split-file-input').click()">
+                    <i class="fas fa-plus"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <div class="chat-header">Extracted Text</div>
+            <div class="text-display">
+                <pre id="extracted-text">OCR content will appear here.</pre>
+            </div>
+        </div>
+    </div>
+     <input type="file" id="split-file-input" multiple accept="image/*,.pdf" onchange="handleFileUpload(event, true)">
+
+
+
+<script>
+    let images = [];
+    let currentIndex = 0;
+async function extractImagesFromPDF(file) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+
+    const fileReader = new FileReader();
+    fileReader.readAsArrayBuffer(file);
+
+    return new Promise(resolve => {
+        fileReader.onload = async function () {
+            const pdfData = new Uint8Array(fileReader.result);
+            const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+            const pages = [];
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: 1.3 });
+
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+                await new Promise(resolveBlob => {
+                    canvas.toBlob(blob => {
+                        const imageFile = new File([blob], `page_${pageNum}.png`, { type: 'image/png' });
+                        pages.push(imageFile); // Store each page's image in the pages array
+                        resolveBlob();
+                    }, 'image/png');
+                });
+            }
+            // Push all extracted page images to the global images array
+            images.push(...pages);
+            console.log("Total images after PDF extraction:", images.length); // Debugging statement
+            resolve();
+        };
+    });
+}
+
+function handleFileUpload(event, append = false) {
+    const files = Array.from(event.target.files);
+
+    if (!append) {
+        images = []; // Reset images array if not appending
+        currentIndex = 0; // Reset current index
+    }
+
+    const promises = files.map(file => {
+        if (file.type === 'application/pdf') {
+            return extractImagesFromPDF(file); // Extract images from PDF
+        } else if (file.type.startsWith('image/')) {
+            images.push(file); // Directly add image files to the images array
+            return Promise.resolve();
+        }
+        return Promise.resolve();
+    });
+
+    Promise.all(promises).then(() => {
+        if (images.length > 0) {
+            document.getElementById('initial-upload').style.display = 'none';
+            document.getElementById('split-container').style.display = 'grid';
+            displayImage(0); // Display the first image
+            performOCR(images[0]); // Perform OCR on the first image
+            updateNavigationArrows(); // Update navigation arrows visibility
+        }
+    }).catch(error => {
+        console.error("Error handling files:", error);
+    });
+}
+
+function displayImage(index) {
+    if (index >= 0 && index < images.length) {
+        const imageContainer = document.getElementById('uploaded-image');
+        imageContainer.src = URL.createObjectURL(images[index]); // Set the image source
+        currentIndex = index; // Update current index
+        updateNavigationArrows(); // Update navigation arrows
+    }
+}
+
+// Other functions remain unchanged...
+    function updateNavigationArrows() {
+        const prevArrow = document.getElementById('prev-arrow');
+        const nextArrow = document.getElementById('next-arrow');
+        prevArrow.style.display = currentIndex === 0 ? 'none' : 'flex';
+        nextArrow.style.display = currentIndex === images.length - 1 ? 'none' : 'flex';
+    }
+
+    function navigateImages(direction) {
+        const newIndex = currentIndex + direction;
+        if (newIndex >= 0 && newIndex < images.length) {
+            displayImage(newIndex);
+            performOCR(images[newIndex]);
+        }
+    }
+
+    async function performOCR(file) {
+        const reader = new FileReader();
+        reader.onload = async function(event) {
+            try {
+                const response = await fetch("{% url 'ocr' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ image_url: event.target.result })
+                });
+                const data = await response.json();
+                document.getElementById('extracted-text').textContent = data.extractedText;
+            } catch (error) {
+                console.error("Error extracting text:", error);
+                document.getElementById('extracted-text').textContent = "Failed to extract text. Please try again.";
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+</script>
+</body>
+</html>
+{% endblock %}

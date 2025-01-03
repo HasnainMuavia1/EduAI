@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.tutorialjinni.com/font-awesome/6.6.0/css/all.min.css">
+    <style>
+      /* Previous styles remain the same until chat-input */
+      .chat-container, .side-container {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 15px;
+        height: 80vh;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .chat-messages {
+        overflow-y: auto;
+        flex-grow: 1;
+        padding: 1rem;
+      }
+
+      .message {
+        margin-bottom: 1rem;
+        max-width: 80%;
+        clear: both;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+
+      .message-content {
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        position: relative;
+        word-wrap: break-word;
+      }
+
+      .user-message {
+        float: right;
+      }
+
+      .user-message .message-content {
+        background-color: #F55036;
+        color: white;
+        border-bottom-right-radius: 0.25rem;
+        animation: slideInRight 0.2s ease;
+      }
+
+      @keyframes slideInRight {
+        0% { transform: translateX(100%); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+      }
+
+      .bot-message {
+        float: left;
+        display: flex;
+        align-items: flex-start;
+      }
+
+      .bot-message .message-content {
+        background-color: #f1f1f1;
+        color: black;
+        border-bottom-left-radius: 0.25rem;
+        animation: slideInLeft 0.2s ease;
+      }
+
+      @keyframes slideInLeft {
+        0% { transform: translateX(-100%); opacity: 0; }
+        100% { transform: translateX(0); opacity: 1; }
+      }
+
+      .bot-icon-container {
+        margin-right: 10px;
+        animation: bounce 1s;
+      }
+
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+      }
+
+      .chat-input-wrapper {
+        position: relative;
+        padding: 8px;
+        background-color: #ffffff;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .chat-input-container {
+        position: relative;
+        max-width: 48rem;
+        margin: 0 auto;
+      }
+
+      /* Modified chat input styles to handle disabled state */
+      .chat-input {
+        width: 100%;
+        min-height: 48px;
+        max-height: 200px;
+        padding: 12px 45px 12px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 24px;
+        background-color: #ffffff;
+        resize: none;
+        overflow-y: hidden;
+        line-height: 1.5;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .chat-input:disabled {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+        color: #9ca3af;
+      }
+
+      .chat-input:disabled::placeholder {
+        color: #9ca3af;
+      }
+
+      .chat-input:focus {
+        outline: none;
+        border-color: #F55036;
+        box-shadow: 0 0 0 2px rgba(245, 80, 54, 0.2);
+      }
+
+      .chat-input:disabled:focus {
+        border-color: #e5e7eb;
+        box-shadow: none;
+      }
+
+      .send-button {
+        position: absolute;
+        right: 9px;
+        bottom: 6px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: #eb9225;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.3s, opacity 0.2s;
+        margin-bottom: 6px;
+        opacity: 0.7;
+      }
+
+      .send-button:disabled {
+        background-color: #d1d5db;
+        cursor: not-allowed;
+        opacity: 0.5;
+        transform: none;
+      }
+
+      .send-button.active {
+        opacity: 1;
+        background-color: #F55036;
+      }
+
+      .send-button:not(:disabled):hover {
+        background-color: #f77c5c;
+        transform: translateX(-5px);
+      }
+
+      /* No files message */
+      .no-files-message {
+        position: absolute;
+        bottom: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #fee2e2;
+        color: #ef4444;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .no-files-message.visible {
+        opacity: 1;
+      }
+
+      /* Rest of the previous styles */
+      .side-container {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 15px;
+        height: 80vh;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .side-container::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .side-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 8px;
+      }
+
+      .side-container::-webkit-scrollbar-thumb {
+        background: #F55036;
+        border-radius: 8px;
+      }
+
+      .side-container::-webkit-scrollbar-thumb:hover {
+        background: #f77c5c;
+      }
+
+      .upload-container:hover i {
+        transform: translateY(-5px);
+        transition: transform 0.2s;
+      }
+
+      .upload-container i {
+        transition: transform 0.2s;
+      }
+
+      .upload-container {
+        border: 2px dashed #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+      }
+
+      .upload-container:hover {
+        border-color: #F55036;
+        background-color: #fff5f3;
+      }
+
+      .upload-container i {
+        font-size: 2rem;
+        color: #F55036;
+        margin-bottom: 10px;
+      }
+
+      .upload-text {
+        color: #6b7280;
+        margin: 0;
+      }
+
+      .file-list {
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+
+      .file-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+      }
+
+      .file-item:hover {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .file-icon {
+        font-size: 1.2rem;
+        color: #F55036;
+        margin-right: 10px;
+      }
+
+      .file-name {
+        flex-grow: 1;
+        font-size: 0.9rem;
+        color: #374151;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .delete-file {
+        color: #ef4444;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+      }
+
+      .delete-file:hover {
+        background-color: #fee2e2;
+      }
+
+      .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4>ChatWat with Link </h4>
+        <div class="row g-3 mt-2">
+            <!-- Chat Container -->
+            <div class="col-lg-9">
+                <div class="d-flex flex-column chat-container">
+                    <div id="chat-messages" class="chat-messages flex-grow-1 mb-3">
+                        <!-- Messages will be added here -->
+                    </div>
+                    <div class="chat-input-wrapper">
+                        <div class="chat-input-container">
+                           <div class="no-files-message" id="noFilesMessage">
+                               Please upload a file to start chatting
+                           </div>
+                           <form method="post" action="" id="chat-form">
+                               {% csrf_token %}
+                                <textarea
+                                id="chat-input"
+                                name="query"
+                                class="chat-input"
+                                placeholder="Upload a file to start chatting..."
+                                rows="1"
+                                disabled
+                            ></textarea>
+                            <button id="send-button" type="submit" class="send-button" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                           </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Side Container -->
+            <div class="col-lg-3">
+                <div class="side-container">
+                    <div class="file-list" id="fileList">
+                        <!-- Uploaded files will appear here -->
+                    </div>
+                    <div class="upload-container" id="uploadContainer">
+                        <form action="" id="file_container" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="file" id="fileInput" name="file"  style="display: none;">
+                        </form>
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p class="upload-text">Drop files here or click to upload</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  const textarea = document.querySelector('.chat-input');
+  const initialHeight = '48px';
+  const sendButton = document.getElementById('send-button');
+  const chatInput = document.getElementById('chat-input');
+  const noFilesMessage = document.getElementById('noFilesMessage');
+
+  function resetTextarea() {
+    textarea.style.height = initialHeight;
+    textarea.value = '';
+  }
+
+  function updateInputState() {
+    const fileCount = document.querySelectorAll('.file-item').length;
+    const hasFiles = fileCount > 0;
+
+    chatInput.disabled = !hasFiles;
+    sendButton.disabled = !hasFiles;
+
+    if (!hasFiles) {
+      chatInput.placeholder = "Upload a file to start chatting...";
+      noFilesMessage.classList.add('visible');
+    } else {
+      chatInput.placeholder = "Message ChatBot...";
+      noFilesMessage.classList.remove('visible');
+    }
+  }
+
+  textarea.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+
+    if (this.value.trim().length > 0) {
+      sendButton.classList.add('active');
+    } else {
+      sendButton.classList.remove('active');
+    }
+  });
+
+  textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey && !this.disabled) {
+      e.preventDefault();
+      if (this.value.trim().length > 0) {
+        $('#chat-form').submit();
+      }
+    }
+  });
+
+  chatInput.addEventListener('focus', function() {
+    if (this.disabled) {
+      noFilesMessage.classList.add('visible');
+    }
+  });
+
+  chatInput.addEventListener('blur', function() {
+    noFilesMessage.classList.remove('visible');
+  });
+
+  function appendMessage(content, isUser) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+
+    if (!isUser) {
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'bot-icon-container';
+
+        const botIcon = document.createElement('i');
+        botIcon.className = 'fas fa-robot'; // Font Awesome bot icon class
+        botIcon.style.color = '#F55036';
+        iconContainer.appendChild(botIcon);
+
+        messageDiv.appendChild(iconContainer);
+    }
+
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    messageContent.textContent = content; // Add text content directly
+    messageDiv.appendChild(messageContent);
+
+    document.getElementById('chat-messages').appendChild(messageDiv);
+
+    const chatMessages = document.getElementById('chat-messages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+  // File Upload Handling
+  const uploadContainer = document.getElementById('uploadContainer');
+  const fileInput = document.getElementById('fileInput');
+  const fileList = document.getElementById('fileList');
+
+  uploadContainer.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  uploadContainer.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadContainer.style.borderColor = '#F55036';
+    uploadContainer.style.backgroundColor = '#fff5f3';
+  });
+
+  uploadContainer.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    uploadContainer.style.borderColor = '#e5e7eb';
+    uploadContainer.style.backgroundColor = '#f8f9fa';
+  });
+
+  uploadContainer.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadContainer.style.borderColor = '#e5e7eb';
+    uploadContainer.style.backgroundColor = '#f8f9fa';
+
+    const files = e.dataTransfer.files;
+    handleFiles(files);
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    handleFiles(e.target.files);
+  });
+
+ // Updated handleFiles function
+function handleFiles(files) {
+    Array.from(files).forEach(file => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+
+        const icon = document.createElement('i');
+        icon.className = 'file-icon fas fa-file';
+
+        const fileName = document.createElement('span');
+        fileName.className = 'file-name';
+        fileName.textContent = file.name;
+
+        const deleteBtn = document.createElement('i');
+        deleteBtn.className = 'delete-file fas fa-times';
+        deleteBtn.onclick = function() {
+            fileItem.remove();
+            updateInputState();
+            fileInput.value = ''; // Reset the input for re-upload
+        };
+
+        fileItem.appendChild(icon);
+        fileItem.appendChild(fileName);
+        fileItem.appendChild(deleteBtn);
+
+        fileList.appendChild(fileItem);
+    });
+
+    updateInputState();
+}
+
+// Initialize input state
+updateInputState();
+
+  $(document).ready(function() {
+  $('#chat-form').on('submit', function(event) {
+    event.preventDefault();
+
+    const userQuery = $('#chat-input').val().trim();
+    if (userQuery.length === 0) {
+      return;
+    }
+
+    // Display user message
+    appendMessage(userQuery, true);
+
+    // Clear input field
+    $('#chat-input').val('');
+
+    // Send AJAX POST request
+    $.ajax({
+      url: '{% url "chat_with_book" %}',
+      method: 'POST',
+      data: {
+        'query': userQuery,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+      },
+      success: function(response) {
+        // Display bot message
+        appendMessage(response.message, false);
+      },
+      error: function(error) {
+        console.error("Error:", error);
+        appendMessage("Sorry, there was an error processing your request.", false);
+      }
+    });
+  });
+});
+  
+  
+ $(document).ready(function() {
+    $('#file_container').on('change', '#fileInput', function(event) {
+        event.preventDefault();
+
+        // Create a FormData object
+        const formData = new FormData($('#file_container')[0]);
+
+        // Send the file to the server via AJAX
+        $.ajax({
+            url: '{% url "chat_with_book" %}', // Replace with your URL or Django URL tag
+            type: 'POST',
+            data: formData,
+            processData: false, // Important for sending FormData
+            contentType: false, // Important for sending FormData
+            error: function(xhr, status, error) {
+                // Handle error (e.g., show error message)
+                appendMessage("Error uploading file: " + error, false);
+            }
+        });
+    });
+});
+ 
+
+</script>
+{% endblock %}
