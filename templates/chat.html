@@ -728,8 +728,8 @@ function handleFormSubmit(event, formId) {
 
         // Add bot response to simple chat box
         const simpleBotWrapper = document.createElement("div");
-        simpleBotWrapper.className = "message-wrapper bot-wrapper";
-        simpleBotWrapper.innerHTML = `<div class="chat-bubble bot-message">${botResponse}</div>`;
+        simpleBotWrapper.className = "message-wrapper bot-wrapper ";
+        simpleBotWrapper.innerHTML = `<div class="chat-bubble bot-message ">${botResponse}</div>`;
         simpleChatBox.appendChild(simpleBotWrapper);
 
         document.getElementById(isInitialForm ? "query" : "query-split").value = '';
@@ -890,4 +890,3 @@ async function downloadPDF() {
 </body>
 </html>
 {% endblock %}
-
