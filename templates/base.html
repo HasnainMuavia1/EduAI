@@ -220,12 +220,18 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/about">
-                            <i class="fas fa-info-circle nav-icon"></i>About
+                        <a class="nav-link" href="{% url 'chat' %}">
+                            <i class="fas fa-info-circle nav-icon"></i>Generate Paper
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'ocr' %}">
+                            <i class="fas fa-info-circle nav-icon"></i>OCR
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/contact">
+                        <a class="nav-link" href="#footer">
                             <i class="fas fa-envelope nav-icon"></i>Contact
                         </a>
                     </li>
@@ -278,7 +284,7 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>Made with <i class="fas fa-heart heart-icon"></i> by Hasnain Muavia</p>
+                <p>Made with <i class="fas fa-heart heart-icon"></i> by Anum Saleem</p>
                 <p class="mt-1">&copy; {% now "Y" %} EduAI. All rights reserved.</p>
             </div>
         </div>
