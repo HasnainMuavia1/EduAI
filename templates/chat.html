@@ -14,7 +14,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
 
-
 <style>
         :root {
             --primary-color: #2563eb;
@@ -482,7 +481,9 @@
                 flex-direction: column;
             }
         }
-    </style></head>
+    </style>
+
+</head>
 <body>
 <div class="initial-container" id="single-container">
         <div class="upload-container">
@@ -513,8 +514,8 @@
                 <input type="file" id="file-upload" name="document" style="display: none;" accept=".pdf,.doc,.docx,.txt">
             </form>
         </div>
-
     </div>
+<br> <br><br>
 <div class="split-container" id="split-container">
     <div class="chat-section-main">
         <div class="chat-header">
@@ -728,8 +729,8 @@ function handleFormSubmit(event, formId) {
 
         // Add bot response to simple chat box
         const simpleBotWrapper = document.createElement("div");
-        simpleBotWrapper.className = "message-wrapper bot-wrapper ";
-        simpleBotWrapper.innerHTML = `<div class="chat-bubble bot-message ">${botResponse}</div>`;
+        simpleBotWrapper.className = "message-wrapper bot-wrapper";
+        simpleBotWrapper.innerHTML = `<div class="chat-bubble bot-message">${botResponse}</div>`;
         simpleChatBox.appendChild(simpleBotWrapper);
 
         document.getElementById(isInitialForm ? "query" : "query-split").value = '';
