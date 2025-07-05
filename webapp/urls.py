@@ -21,9 +21,10 @@ from . import views
 
 
 urlpatterns = [
-    path("",views.transcribe, name="Transcribe"),
+    path("", views.landing_page, name="landing_page"),
+    path("lecture/", views.transcribe, name="Transcribe"),
     path("transcribe/", views.trans_results, name="trans_results"),
-    path("chatWithBook/",views.chat_with_book,name="chat_with_book"),
+    path("chatWithBook/", views.chat_with_book, name="chat_with_book"),
     path('GeneratePaper/', views.chat, name='chat'),
     path('ocr/', views.ocr, name='ocr'),
 ]

@@ -1,8 +1,14 @@
 import io
 import subprocess
 import urllib.request
+import os
 from tempfile import NamedTemporaryFile
 from groq import Groq
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
 import yt_dlp
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -31,13 +37,17 @@ import re
 # from docx import Document
 # WatsonX API setup
 
-WATSON_API_KEY = os.environ.get('WATSON_API_KEY', 'DyzopmVFpgPTJi-YFnXvJsxK1U1Dk6WIZA8a2V3IGYqx')
-WATSON_URL = os.environ.get('WATSON_URL',
-                            'https://api.au-syd.speech-to-text.watson.cloud.ibm.com/instances/b088efec-be09-4d11-8b27-09a420dc010c')
+# Get Speech-to-Text credentials from environment variables
+WATSON_API_KEY = os.environ.get('SPEECH_TO_TEXT_IAM_APIKEY')
+WATSON_URL = os.environ.get('SPEECH_TO_TEXT_URL')
 
 authenticator = IAMAuthenticator(WATSON_API_KEY)
 speech_to_text = SpeechToTextV1(authenticator=authenticator)
 speech_to_text.set_service_url(WATSON_URL)
+
+
+def landing_page(request):
+    return render(request, 'landing.html')
 
 
 def transcribe(request):
@@ -186,8 +196,10 @@ def trans_results(request):
 
 
 def generate_prompt(transcribed_text, user_query):
+    # Get API key from environment variable
+    groq_api_key = os.environ.get('GROQ_API_KEY')
     client = Groq(
-        api_key="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",
+        api_key=groq_api_key,
     )
 
     # Define the prompt with context and user query
@@ -242,9 +254,10 @@ def extract_text_from_txt(file_path):
 
 
 def generate_prompt2(context,user_query):
-    # Assuming your Groq API key and client initialization here...
+    # Get API key from environment variable
+    groq_api_key = os.environ.get('GROQ_API_KEY')
     client = Groq(
-        api_key="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",
+        api_key=groq_api_key,
     )
 
     # Define the prompt with context and user query
@@ -620,7 +633,7 @@ def ocr(request):
 
             # Call the API with Base64 image data
             completion = client.chat.completions.create(
-                model="llama-3.2-11b-vision-preview",
+                model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
                     {
                         "role": "user",

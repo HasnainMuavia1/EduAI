@@ -5,15 +5,16 @@
     <link rel="stylesheet" href="https://cdn.tutorialjinni.com/font-awesome/6.6.0/css/all.min.css">
     <style>
       .chat-container, .side-container {
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border: 1px solid rgba(138, 43, 226, 0.2);
+        border-radius: 12px;
         padding: 15px;
         height: 80vh;
-        background-color: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.15);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
       .user-message .message-content {
-        background-color: #F55036;
+        background-color: #8a2be2;
         color: white;
         border-bottom-right-radius: 0.25rem;
         animation: slideInRight 0.2s ease;
@@ -31,8 +32,8 @@
       }
 
       .bot-message .message-content {
-        background-color: #f1f1f1;
-        color: black;
+        background-color: rgba(147, 112, 219, 0.15);
+        color: #333;
         border-bottom-left-radius: 0.25rem;
         animation: slideInLeft 0.2s ease;
       }
@@ -78,7 +79,7 @@
       }
 
       .user-message .message-content {
-        background-color: #F55036;
+        background-color: #8a2be2;
         color: white;
         border-bottom-right-radius: 0.25rem;
       }
@@ -87,13 +88,11 @@
         float: left;
       }
 
-  
-
       .chat-input-wrapper {
         position: relative;
         padding: 8px;
         background-color: #ffffff;
-        border-top: 1px solid #e5e7eb;
+        border-top: 1px solid rgba(138, 43, 226, 0.2);
       }
 
       .chat-input-container {
@@ -107,7 +106,7 @@
         min-height: 48px;
         max-height: 200px;
         padding: 12px 45px 12px 16px;
-        border: 1px solid #e5e7eb;
+        border: 1px solid rgba(138, 43, 226, 0.2);
         border-radius: 24px;
         background-color: #ffffff;
         resize: none;
@@ -118,8 +117,8 @@
 
       .chat-input:focus {
         outline: none;
-        border-color: #F55036;
-        box-shadow: 0 0 0 2px rgba(245, 80, 54, 0.2);
+        border-color: #8a2be2;
+        box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
       }
 
       .send-button {
@@ -129,7 +128,7 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background-color: #eb9225;
+        background-color: #9370db;
         border: none;
         display: flex;
         align-items: center;
@@ -143,11 +142,11 @@
 
       .send-button.active {
         opacity: 1;
-        background-color: #F55036;
+        background-color: #8a2be2;
       }
 
       .send-button:hover {
-        background-color: #f77c5c;
+        background-color: #6a1fb1;
         transform: translateX(-5px);
       }
 
@@ -156,12 +155,12 @@
       }
 
       .side-container {
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border: 1px solid rgba(138, 43, 226, 0.2);
+        border-radius: 12px;
         padding: 15px;
         height: 80vh;
-        background-color: #ffffff;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 15px rgba(138, 43, 226, 0.15);
         overflow-y: auto;
       }
 
@@ -175,12 +174,12 @@
       }
 
       .side-container::-webkit-scrollbar-thumb {
-        background: #F55036;
+        background: #8a2be2;
         border-radius: 8px;
       }
 
       .side-container::-webkit-scrollbar-thumb:hover {
-        background: #f77c5c;
+        background: #6a1fb1;
       }
 
       /* Clear float after messages */
@@ -281,7 +280,7 @@
 
         const botIcon = document.createElement('i');
         botIcon.className = 'fas fa-robot'; // Font Awesome bot icon class
-        botIcon.style.color = '#F55036';
+        botIcon.style.color = '#8a2be2';
         iconContainer.appendChild(botIcon);
 
         messageDiv.appendChild(iconContainer);

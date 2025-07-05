@@ -11,17 +11,18 @@
         }
 
         .upload-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.15);
             max-width: 600px;
             width: 90%;
             margin: 1rem;
+            border: 1px solid rgba(138, 43, 226, 0.2);
         }
 
         .upload-container {
-            border: 2px dashed #6c757d;
+            border: 2px dashed #9370db;
             border-radius: 15px;
             height: 160px;
             display: flex;
@@ -30,26 +31,26 @@
             margin: 1.5rem 0;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f8f9fa;
+            background: rgba(147, 112, 219, 0.05);
             position: relative;
             overflow: hidden;
         }
 
         .upload-container:hover {
-            border-color: #F55036; /* Primary color */
-            background: #fbe3e1; /* Lightened background */
+            border-color: #8a2be2; /* Primary color */
+            background: rgba(138, 43, 226, 0.1); /* Lightened background */
             transform: translateY(-2px);
         }
 
         .upload-container i {
             font-size: 2.5rem;
-            color: #6c757d;
+            color: #9370db;
             margin-bottom: 0.5rem;
             transition: all 0.3s ease;
         }
 
         .upload-container:hover i {
-            color: #F55036; /* Primary color */
+            color: #8a2be2; /* Primary color */
             transform: scale(1.1);
         }
 
@@ -63,7 +64,7 @@
             border-radius: 50px;
             padding: 0 1.5rem;
             font-size: 1rem;
-            border: 2px solid #dee2e6;
+            border: 2px solid rgba(138, 43, 226, 0.2);
             transition: all 0.3s ease;
         }
 
@@ -74,7 +75,7 @@
             bottom: 5px;
             border-radius: 50px;
             padding: 0 1.5rem;
-            background: #F55036; /* Primary color */
+            background: #8a2be2; /* Primary color */
             border: none;
             color: white;
             font-weight: 500;
@@ -85,7 +86,7 @@
         /* Leftward animation on button hover */
         .custom-input-group button:hover {
             transform: translateX(-5px);
-            background-color: #f77c5c; /* Lightened shade for hover */
+            background-color: #6a1fb1; /* Darker shade for hover */
         }
 
         .divider {
@@ -115,8 +116,8 @@
 
         .upload-container.dragover {
             animation: pulse 1s infinite;
-            border-color: #F55036; /* Primary color */
-            background: #fbe3e1; /* Lightened background during dragover */
+            border-color: #8a2be2; /* Primary color */
+            background: rgba(138, 43, 226, 0.15); /* Lightened background during dragover */
         }
     </style>
 {% endblock %}

@@ -13,10 +13,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
           :root {
-            --primary-color: #1a365d;
-            --border-color: #e2e8f0;
-            --background-color: #edf2f7;
-            --header-bg: #2d3748;
+            --primary-color: #8a2be2;
+            --secondary-color: #6a1fb1;
+            --border-color: rgba(138, 43, 226, 0.2);
+            --background-color: #f8fafc;
+            --header-bg: #8a2be2;
             --text-light: #f7fafc;
         }
 
@@ -30,9 +31,10 @@
         }
 
         .upload-container {
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.15);
+            border: 1px solid rgba(138, 43, 226, 0.2);
             padding: 2rem;
             width: 100%;
             max-width: 600px;
@@ -69,9 +71,10 @@
         }
 
         .chat-section-main, .preview-section {
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.15);
+            border: 1px solid rgba(138, 43, 226, 0.2);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -121,11 +124,13 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(138, 43, 226, 0.3);
         }
 
         .nav-arrow:hover {
-            background: var(--primary-color);
+            background: var(--secondary-color);
+            transform: scale(1.1);
         }
 
         .nav-arrow.hidden {
@@ -146,9 +151,10 @@
             justify-content: center;
             cursor: pointer;
             font-size: 1.5rem;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
             z-index: 10;
             visibility: visible !important;
+            box-shadow: 0 2px 8px rgba(138, 43, 226, 0.3);
         }
 
         .nav-arrows {
@@ -162,7 +168,8 @@
         }
 
         .upload-more:hover {
-            background: var(--primary-color);
+            background: var(--secondary-color);
+            transform: scale(1.1);
         }
 
         input[type="file"] {
@@ -187,10 +194,10 @@
         <div class="upload-container">
             <h1 class="upload-title">Upload Your Media</h1>
             <div class="upload-box" onclick="document.getElementById('initial-file-input').click()">
-                <i class="fas fa-cloud-upload-alt upload-icon" style="font-size: 40px;"></i>
+                <i class="fas fa-cloud-upload-alt upload-icon" style="font-size: 40px; color: #8a2be2;"></i>
                 <div class="upload-text">Drag & drop your file here or click to browse</div><br>
                 <div class="file-info">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="fas fa-info-circle" style="color: #9370db;"></i>
                     Accepted formats: pdf, png, jpg
                 </div>
             </div>
