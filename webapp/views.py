@@ -335,7 +335,7 @@ import base64
 import re
 
 # Initialize the Groq client
-client = Groq(api_key="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")
+client = Groq(api_key=os.environ.get('GROQ_API_KEY_2'))
 
 # Define the maximum number of messages to retain in chat history
 MAX_CHAT_HISTORY_LENGTH = 10

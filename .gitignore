@@ -1,0 +1,29 @@
+# Environments
+.env
+speech to text.env
+.venv
+env/
+venv/
+ENV/
+env.bak
+venv.bak
+*.env
+
+# Python
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# IDEs
+.idea/
+.vscode/
+
+# Media
+media/
